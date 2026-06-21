@@ -12,7 +12,20 @@
           "package_name": "com.example.sos_tap"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "142458299561-qg57ae0dsmr5qthgs0662np74t235069.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.sos_tap",
+            "certificate_hash": "9b056094c387f317b62e3fdbaa054cd17917ee25"
+          }
+        },
+        {
+          "client_id": "142458299561-iop8f67dctb74q8es8r2nip33tf9ts0t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyByyikLfsof3ZpjKCO2sQO7wCNUDkFb_Ws"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "142458299561-iop8f67dctb74q8es8r2nip33tf9ts0t.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "142458299561-rk9ml0b83upjhq8fgfpsgvo5io2da336.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.sosTap"
+              }
+            }
+          ]
         }
       }
     },
@@ -31,7 +56,12 @@
           "package_name": "com.panji.sostap"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "142458299561-iop8f67dctb74q8es8r2nip33tf9ts0t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyByyikLfsof3ZpjKCO2sQO7wCNUDkFb_Ws"
@@ -39,7 +69,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "142458299561-iop8f67dctb74q8es8r2nip33tf9ts0t.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "142458299561-rk9ml0b83upjhq8fgfpsgvo5io2da336.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.sosTap"
+              }
+            }
+          ]
         }
       }
     }

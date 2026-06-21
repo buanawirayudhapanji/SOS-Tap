@@ -1,7 +1,10 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:geolocator/geolocator.dart';
 import 'firestore_service.dart';
 
 class ReportDetailPage extends StatefulWidget {
@@ -22,6 +25,11 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
   final _firestoreService = FirestoreService();
   bool _isAccepting = false;
 
+  bool _isRouteLoading = false;
+  LatLng? _currentLocation;
+  List<LatLng> _routePoints = [];
+  final MapController _mapController = MapController();
+
   Future<void> _acceptReport() async {
     setState(() {
       _isAccepting = true;
@@ -32,7 +40,7 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Laporan berhasil diterima (ACCEPTED)"),
+            content: Text("Laporan berhasil diterima"),
             backgroundColor: Colors.green,
           ),
         );
@@ -50,6 +58,92 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
       if (mounted) {
         setState(() {
           _isAccepting = false;
+        });
+      }
+    }
+  }
+
+  Future<List<LatLng>> _fetchRoute(LatLng start, LatLng end) async {
+    final client = HttpClient();
+    try {
+      final request = await client.getUrl(Uri.parse(
+        'https://router.project-osrm.org/route/v1/driving/'
+        '${start.longitude},${start.latitude};${end.longitude},${end.latitude}'
+        '?geometries=geojson'
+      ));
+      final response = await request.close();
+      if (response.statusCode == 200) {
+        final jsonString = await response.transform(utf8.decoder).join();
+        final data = json.decode(jsonString);
+        if (data['routes'] != null && data['routes'].isNotEmpty) {
+          final coordinates = data['routes'][0]['geometry']['coordinates'] as List;
+          return coordinates.map((coord) {
+            return LatLng(coord[1] as double, coord[0] as double);
+          }).toList();
+        }
+      }
+    } catch (e) {
+      debugPrint("Error fetching route: $e");
+    } finally {
+      client.close();
+    }
+    return [];
+  }
+
+  Future<void> _startRoute(LatLng destination) async {
+    setState(() {
+      _isRouteLoading = true;
+    });
+
+    try {
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          throw Exception("Izin lokasi ditolak.");
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        throw Exception("Izin lokasi ditolak secara permanen. Harap aktifkan di pengaturan.");
+      }
+
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      LatLng start = LatLng(position.latitude, position.longitude);
+
+      final points = await _fetchRoute(start, destination);
+      if (points.isEmpty) {
+        throw Exception("Gagal menghitung rute via jalan. Pastikan koneksi internet aktif.");
+      }
+
+      setState(() {
+        _currentLocation = start;
+        _routePoints = points;
+      });
+
+      _mapController.fitCamera(
+        CameraFit.bounds(
+          bounds: LatLngBounds.fromPoints([start, destination]),
+          padding: const EdgeInsets.all(50.0),
+        ),
+      );
+
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceAll("Exception: ", "")),
+            backgroundColor: Colors.red.shade700,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isRouteLoading = false;
         });
       }
     }
@@ -92,6 +186,7 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
                 SizedBox(
                   height: 300,
                   child: FlutterMap(
+                    mapController: _mapController,
                     options: MapOptions(
                       initialCenter: reporterLocation,
                       initialZoom: 16.0,
@@ -101,6 +196,16 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
                         urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                         userAgentPackageName: 'com.example.sos_tap',
                       ),
+                      if (_routePoints.isNotEmpty)
+                        PolylineLayer(
+                          polylines: [
+                            Polyline(
+                              points: _routePoints,
+                              color: Colors.blue.shade700,
+                              strokeWidth: 5.0,
+                            ),
+                          ],
+                        ),
                       MarkerLayer(
                         markers: [
                           Marker(
@@ -113,6 +218,17 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
                               size: 45,
                             ),
                           ),
+                          if (_currentLocation != null)
+                            Marker(
+                              point: _currentLocation!,
+                              width: 60,
+                              height: 60,
+                              child: const Icon(
+                                Icons.my_location,
+                                color: Colors.blue,
+                                size: 35,
+                              ),
+                            ),
                         ],
                       ),
                     ],
@@ -141,11 +257,19 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 8),
                             decoration: BoxDecoration(
-                              color: isPending ? Colors.red : Colors.green,
+                              color: status == 'accepted'
+                                  ? Colors.green
+                                  : status == 'cancelled'
+                                      ? Colors.grey
+                                      : Colors.red,
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
-                              status.toUpperCase(),
+                              status == 'accepted'
+                                  ? 'diterima'
+                                  : status == 'cancelled'
+                                      ? 'dibatalkan'
+                                      : status,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -192,7 +316,48 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
                         label: "Koordinat",
                         value: "Lat: $latitude\nLng: $longitude",
                       ),
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 32),
+
+                      // Mulai Rute Button (Visible for pending or accepted reports, but not cancelled)
+                      if (!isCancelled) ...[
+                        ElevatedButton(
+                          onPressed: _isRouteLoading ? null : () => _startRoute(reporterLocation),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue.shade700,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 2,
+                          ),
+                          child: _isRouteLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2.5,
+                                  ),
+                                )
+                              : const Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.navigation_outlined, color: Colors.white),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      "Navigasisaja",
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.8,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                        ),
+                        const SizedBox(height: 20),
+                      ],
 
                       // Action Button
                       if (isPending)

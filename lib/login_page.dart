@@ -58,7 +58,34 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  Future<void> _loginWithGoogle() async {
+    setState(() {
+      _isLoading = true;
+    });
 
+    try {
+      final userCred = await _authService.signInWithGoogle();
+      if (userCred == null) {
+        return; // Sign-in was cancelled
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceAll("Exception: ", "")),
+            backgroundColor: Colors.red.shade700,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +149,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          "Sistem Pelaporan Kebakaran Cepat Damkar",
+                          "Sistem Pelaporan Kebakaran Cepat",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 13,
@@ -250,6 +277,65 @@ class _LoginPageState extends State<LoginPage> {
                                     letterSpacing: 0.5,
                                   ),
                                 ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Divider
+                        Row(
+                          children: [
+                            Expanded(child: Divider(color: Colors.grey.shade300, thickness: 1)),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                              child: Text(
+                                "atau masuk dengan",
+                                style: TextStyle(
+                                  color: Colors.grey.shade500,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            Expanded(child: Divider(color: Colors.grey.shade300, thickness: 1)),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Google Sign-In Button
+                        OutlinedButton(
+                          onPressed: _isLoading ? null : _loginWithGoogle,
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: Colors.grey.shade300, width: 1.5),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.grey.shade800,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.network(
+                                'https://developers.google.com/static/identity/images/g-logo.png',
+                                height: 20,
+                                width: 20,
+                                errorBuilder: (context, error, stackTrace) => const Icon(
+                                  Icons.g_mobiledata_rounded,
+                                  size: 24,
+                                  color: Colors.blue,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              const Text(
+                                "MASUK DENGAN GOOGLE",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                         const SizedBox(height: 24),
 

@@ -591,7 +591,11 @@ class _HomePageState extends State<HomePage> {
                                                 borderRadius: BorderRadius.circular(12),
                                               ),
                                               child: Text(
-                                                status.toUpperCase(),
+                                                status == 'accepted'
+                                                    ? 'diterima'
+                                                    : status == 'cancelled'
+                                                        ? 'dibatalkan'
+                                                        : status,
                                                 style: TextStyle(
                                                   color: statusColor,
                                                   fontWeight: FontWeight.bold,

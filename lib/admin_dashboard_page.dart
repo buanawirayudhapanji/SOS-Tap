@@ -21,10 +21,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text(
-            "Damkar Dashboard",
+            "Dashboard",
             style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.5),
           ),
-          backgroundColor: Colors.red.shade800,
+          backgroundColor: Colors.red,
           foregroundColor: Colors.white,
           elevation: 0,
           actions: [
@@ -214,7 +214,11 @@ class _SOSReportsTabState extends State<SOSReportsTab> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    status.toUpperCase(),
+                    status == 'accepted'
+                        ? 'diterima'
+                        : status == 'cancelled'
+                            ? 'dibatalkan'
+                            : status,
                     style: TextStyle(
                       color: statusColor,
                       fontWeight: FontWeight.bold,
