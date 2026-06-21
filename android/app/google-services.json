@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "142458299561",
+    "project_id": "sos-tap",
+    "storage_bucket": "sos-tap.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:142458299561:android:8058147b7c4b14c60c75b8",
+        "android_client_info": {
+          "package_name": "com.example.sos_tap"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyByyikLfsof3ZpjKCO2sQO7wCNUDkFb_Ws"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:142458299561:android:1aa1dbacb14eb42f0c75b8",
+        "android_client_info": {
+          "package_name": "com.panji.sostap"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyByyikLfsof3ZpjKCO2sQO7wCNUDkFb_Ws"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
