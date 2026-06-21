@@ -49,4 +49,23 @@ class FirestoreService {
       'status': status,
     });
   }
+
+  // Cancel SOS Report
+  Future<void> cancelReport(String reportId) async {
+    await _db.collection('sos_reports').doc(reportId).update({
+      'status': 'cancelled',
+    });
+  }
+
+  // Stream of all users for Admin
+  Stream<QuerySnapshot<Map<String, dynamic>>> getAllUsersStream() {
+    return _db.collection('users').snapshots();
+  }
+
+  // Toggle User Active Status
+  Future<void> updateUserActiveStatus(String uid, bool isActive) async {
+    await _db.collection('users').doc(uid).update({
+      'isActive': isActive,
+    });
+  }
 }

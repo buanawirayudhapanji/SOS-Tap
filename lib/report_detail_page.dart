@@ -75,6 +75,7 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
         final String status = data['status'] ?? 'pending';
 
         final bool isPending = status == 'pending';
+        final bool isCancelled = status == 'cancelled';
         final LatLng reporterLocation = LatLng(latitude, longitude);
 
         return Scaffold(
@@ -198,37 +199,69 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
                         ElevatedButton(
                           onPressed: _isAccepting ? null : _acceptReport,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
+                            backgroundColor: Colors.green.shade600,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
+                              borderRadius: BorderRadius.circular(12),
                             ),
+                            elevation: 2,
                           ),
                           child: _isAccepting
                               ? const SizedBox(
-                                  height: 24,
-                                  width: 24,
+                                  height: 22,
+                                  width: 22,
                                   child: CircularProgressIndicator(
                                     color: Colors.white,
-                                    strokeWidth: 3,
+                                    strokeWidth: 2.5,
                                   ),
                                 )
-                              : const Text(
-                                  "ACCEPT",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 1.1,
-                                  ),
+                              : const Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.check, color: Colors.white),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      "TERIMA LAPORAN (ACCEPT)",
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.8,
+                                      ),
+                                    ),
+                                  ],
                                 ),
+                        )
+                      else if (isCancelled)
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.grey.shade300),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.cancel, color: Colors.grey.shade600),
+                              const SizedBox(width: 8),
+                              Text(
+                                "Laporan dibatalkan oleh pelapor",
+                                style: TextStyle(
+                                  color: Colors.grey.shade700,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
                         )
                       else
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: Colors.green.shade50,
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: Colors.green.shade200),
                           ),
                           child: const Row(
@@ -241,6 +274,7 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
                                 style: TextStyle(
                                   color: Colors.green,
                                   fontWeight: FontWeight.bold,
+                                  fontSize: 14,
                                 ),
                               ),
                             ],

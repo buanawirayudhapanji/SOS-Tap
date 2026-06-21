@@ -53,6 +53,7 @@ class _ProfilePageState extends State<ProfilePage> {
           SnackBar(
             content: Text("Gagal mengambil data: $e"),
             backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }
@@ -91,6 +92,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   "Email diperbarui. Silakan cek inbox email baru untuk verifikasi.",
                 ),
                 backgroundColor: Colors.orange,
+                behavior: SnackBarBehavior.floating,
               ),
             );
           }
@@ -101,6 +103,7 @@ class _ProfilePageState extends State<ProfilePage> {
             const SnackBar(
               content: Text("Profil berhasil diperbarui"),
               backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
             ),
           );
           Navigator.pop(context);
@@ -112,6 +115,7 @@ class _ProfilePageState extends State<ProfilePage> {
           SnackBar(
             content: Text("Gagal menyimpan profil: ${e.toString().replaceAll("Exception: ", "")}"),
             backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }
@@ -128,45 +132,70 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Edit Profil"),
-        backgroundColor: Colors.red,
+        title: const Text(
+          "Edit Profil",
+          style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.5),
+        ),
+        backgroundColor: Colors.red.shade800,
         foregroundColor: Colors.white,
+        elevation: 0,
       ),
       body: _isLoadingData
           ? const Center(
               child: CircularProgressIndicator(color: Colors.red),
             )
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
               child: Form(
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Center(
-                      child: Stack(
-                        children: [
-                          CircleAvatar(
-                            radius: 50,
-                            backgroundColor: Colors.red,
-                            child: Icon(
+                    Center(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 12,
+                              spreadRadius: 2,
+                            ),
+                          ],
+                        ),
+                        child: CircleAvatar(
+                          radius: 54,
+                          backgroundColor: Colors.red.shade50,
+                          child: CircleAvatar(
+                            radius: 48,
+                            backgroundColor: Colors.red.shade800,
+                            child: const Icon(
                               Icons.person,
-                              size: 60,
+                              size: 54,
                               color: Colors.white,
                             ),
                           ),
-                        ],
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 36),
 
                     // Nama Lengkap
                     TextFormField(
                       controller: _namaController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: "Nama Lengkap",
-                        prefixIcon: Icon(Icons.person),
-                        border: OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.person_outline, color: Colors.grey),
+                        filled: true,
+                        fillColor: Colors.grey.shade50,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.red.shade800, width: 2),
+                        ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -181,10 +210,19 @@ class _ProfilePageState extends State<ProfilePage> {
                     TextFormField(
                       controller: _noHpController,
                       keyboardType: TextInputType.phone,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: "Nomor HP",
-                        prefixIcon: Icon(Icons.phone),
-                        border: OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.phone_outlined, color: Colors.grey),
+                        filled: true,
+                        fillColor: Colors.grey.shade50,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.red.shade800, width: 2),
+                        ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -198,35 +236,44 @@ class _ProfilePageState extends State<ProfilePage> {
                     // Email
                     TextFormField(
                       controller: _emailController,
+                      readOnly: true,
                       keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                        labelText: "Email",
-                        prefixIcon: Icon(Icons.email),
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: "Email (Tidak dapat diubah)",
+                        prefixIcon: const Icon(Icons.email_outlined, color: Colors.grey),
+                        suffixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
+                        filled: true,
+                        fillColor: Colors.grey.shade200,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                        ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Email wajib diisi";
                         }
-                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                            .hasMatch(value)) {
-                          return "Masukkan email yang valid";
-                        }
                         return null;
                       },
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 36),
 
                     // Save Button
                     ElevatedButton(
                       onPressed: _isSaving ? null : _saveProfile,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
+                        backgroundColor: Colors.red.shade700,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
+                          borderRadius: BorderRadius.circular(12),
                         ),
+                        elevation: 2,
                       ),
                       child: _isSaving
                           ? const SizedBox(
@@ -234,14 +281,16 @@ class _ProfilePageState extends State<ProfilePage> {
                               width: 20,
                               child: CircularProgressIndicator(
                                 color: Colors.white,
-                                strokeWidth: 2,
+                                strokeWidth: 2.5,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                               ),
                             )
                           : const Text(
                               "SIMPAN PERUBAHAN",
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 15,
                                 fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
                               ),
                             ),
                     ),
